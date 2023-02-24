@@ -1,8 +1,9 @@
 from rest_framework import generics, permissions, mixins,\
-    status
+    status, filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
+from django_filters.rest_framework import DjangoFilterBackend
 # from rest_framework_simplejwt.authentication import Authen
 
 from .models import Movie, Vote, MovieImage
@@ -12,8 +13,27 @@ from .serializers import MoviesSerializer, VoteSerializer
 class MoviesListCreate(generics.ListCreateAPIView):
     queryset = Movie.objects.all()
     serializer_class = MoviesSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.AllowAny]
     parser_classes = [MultiPartParser]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+
+    filterset_fields = ['year']
+    search_fields = ['title']
+
+    # def get_queryset(self):
+    #     request_data = self.request.data
+
+    #     year = request_data.get('year')
+
+    #     if year is not None:
+    #         movies = Movie.objects.filter(
+    #             year=year
+    #         )
+
+    #     else:
+    #         movies = Movie.objects.all()
+
+    #     print(movies)
 
     def perform_create(self, serializer, *args, **kwargs):
         movie = serializer.save(
@@ -36,7 +56,7 @@ class MoviesListCreate(generics.ListCreateAPIView):
 
 class MovieRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MoviesSerializer
-    permission_class = [permissions.IsAuthenticatedOrReadOnly]
+    permission_class = [permissions.AllowAny]
 
     def get_object(self):
         movie_id = self.kwargs.get('movie_id')
@@ -114,7 +134,7 @@ class MovieRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
 class VoteCreate(generics.CreateAPIView, mixins.DestroyModelMixin):
     serializer_class = VoteSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         user = self.request.user
