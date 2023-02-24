@@ -1,0 +1,9 @@
+.socials {
+    display: flex;
+    flex-direction: row;
+}
+
+.socials__social-link {
+    text-decoration: none;
+    color: black;
+}
